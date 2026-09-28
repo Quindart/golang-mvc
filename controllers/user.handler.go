@@ -1,89 +1,72 @@
 package controllers
 
 import (
-	"database/sql"
 	"example/golang-mvc/models"
-	_ "example/golang-mvc/models"
-	"fmt"
+	"example/golang-mvc/repositories"
+	"example/golang-mvc/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserController struct {
-	DB *sql.DB
+	Repo *repositories.UserRepository
 }
 
-func NewUserController(db *sql.DB) *UserController {
+// Tiêm (Inject) Repository vào Controller
+func NewUserController(repo *repositories.UserRepository) *UserController {
 	return &UserController{
-		DB: db,
+		Repo: repo,
 	}
 }
 
-func (userController *UserController) GetAllUsers(context *gin.Context) {
-
-	query := "select id, fullName, age from users"
-	rows, err := userController.DB.Query(query)
-
+func (c *UserController) GetAllUsers(ctx *gin.Context) {
+	users, err := c.Repo.GetAll()
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
+		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": "Failed to fetch user: " + err.Error(),
 		})
 		return
 	}
-	var users []models.User
 
-	for rows.Next() {
-		var user models.User
-		err := rows.Scan(
-			&user.ID,
-			&user.FullName,
-			&user.Age,
-		)
-		if err != nil {
-			fmt.Println("Error when parse user")
-			context.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Failed to fetch user: " + err.Error(),
-			})
-		}
-		users = append(users, user)
-	}
-
-	context.JSON(http.StatusOK, gin.H{
+	ctx.JSON(http.StatusOK, gin.H{
 		"message": "Get all users successfully !",
 		"users":   users,
 	})
-
 }
 
-func (userController *UserController) CreateUser(context *gin.Context) {
-
+func (c *UserController) CreateUser(ctx *gin.Context) {
 	var user models.User
-	context.ShouldBindJSON(&user)
-
-	query := `
-	insert into users (fullName, age) values (?, ?)
-	`
-	stmt, err := userController.DB.Prepare(query)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
-			"message": "failed to create user:" + err.Error(),
+	if err := ctx.ShouldBindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid request body: " + err.Error(),
 		})
 		return
 	}
 
-	result, err := stmt.Exec(user.FullName, user.Age)
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{
-			"message": "failed to create user:" + err.Error(),
+	if err := c.Repo.Create(&user); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failed to create user: " + err.Error(),
 		})
 		return
 	}
-	user.ID = id
-	context.JSON(http.StatusCreated, gin.H{
+
+	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "Create user successfull!",
 		"user":    user,
 	})
+}
+
+func (c *UserController) GetToken(ctx *gin.Context) {
+	token, err := utils.GenerateToken(1, "Quang")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": "failed to generate token",
+		})
+	}
+	ctx.JSON(http.StatusBadRequest, gin.H{
+		"message": "Generate token success!",
+		"token":   token,
+	})
+
 }

@@ -1,7 +1,9 @@
-# GET http://localhost:5001/users
+# GET http://localhost:5001/api/v1/users/token
 
+# GET http://localhost:5001/api/v1/users
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJmdWxsX25hbWUiOiJRdWFuZyIsImlzcyI6ImFiYz8iLCJleHAiOjE3OTA2ODM3MTEsImlhdCI6MTc5MDU5NzMxMX0.B1UT100f3GBWV47MsMXR3vLesQJgI5dIZT_1GOsD8TU
 
-POST http://localhost:5001/users
+POST http://localhost:5001/api/v1/users
 Content-Type: application/json
 
 {

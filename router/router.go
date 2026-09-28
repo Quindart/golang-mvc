@@ -3,21 +3,33 @@ package router
 import (
 	"database/sql"
 	"example/golang-mvc/controllers"
+	"example/golang-mvc/middlewares"
+	"example/golang-mvc/repositories"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterRouter(ginServer *gin.Engine, db *sql.DB) {
+func SetupRouter(db *sql.DB) *gin.Engine {
+	router := gin.Default()
 
-	ginServer.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "ok "})
+	// Health check chung
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "ok"})
 	})
 
-	//User layer
-	user_controller := controllers.NewUserController(db)
-	user_router := NewUserRouter(ginServer, user_controller)
+	// Khởi tạo các tầng cho User (Dependency Injection)
+	userRepo := repositories.NewUserRepository(db)
+	userController := controllers.NewUserController(userRepo)
 
-	user_router.getAllUser()
-	user_router.createUser()
+	// Tạo một API Version group (ví dụ /api/v1)
+	apiV1 := router.Group("/api/v1")
+	users := apiV1.Group("/users")
+	{
+		users.GET("", middlewares.Authenticate, userController.GetAllUsers)
+		users.GET("/token", userController.GetToken)
+		users.POST("", userController.CreateUser)
+	}
+
+	return router
 }
