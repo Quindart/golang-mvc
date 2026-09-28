@@ -16,6 +16,5 @@ func main() {
 	server := gin.Default()
 
 	router.RegisterRouter(server, connection)
-
 	server.Run(":5001")
 }
