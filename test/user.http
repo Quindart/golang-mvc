@@ -8,5 +8,7 @@ Content-Type: application/json
 
 {
     "full_name" : "Le Minh Quang",
-    "age": 23
+    "age": 23,
+    "user_name": "quang@gmail.com",
+    "password":"123123"
 }
