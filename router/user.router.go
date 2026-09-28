@@ -25,3 +25,11 @@ func (userRouter *UserRouter) getAllUser() {
 		func(c *gin.Context) { userRouter.Handler.GetAllUsers(c) },
 	)
 }
+
+// create user
+func (userRouter *UserRouter) createUser() {
+	userRouter.Engine.POST(
+		"/users",
+		func(c *gin.Context) { userRouter.Handler.CreateUser(c) },
+	)
+}

@@ -15,8 +15,9 @@ func RegisterRouter(ginServer *gin.Engine, db *sql.DB) {
 	})
 
 	//User layer
-	userController := controllers.NewUserController(db)
-	userRouter := NewUserRouter(ginServer, userController)
+	user_controller := controllers.NewUserController(db)
+	user_router := NewUserRouter(ginServer, user_controller)
 
-	userRouter.getAllUser()
+	user_router.getAllUser()
+	user_router.createUser()
 }

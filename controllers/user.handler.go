@@ -27,7 +27,7 @@ func (userController *UserController) GetAllUsers(context *gin.Context) {
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{
-			"message": "Failed to fetch user",
+			"message": "Failed to fetch user: " + err.Error(),
 		})
 		return
 	}
@@ -43,7 +43,7 @@ func (userController *UserController) GetAllUsers(context *gin.Context) {
 		if err != nil {
 			fmt.Println("Error when parse user")
 			context.JSON(http.StatusInternalServerError, gin.H{
-				"message": "Failed to fetch user",
+				"message": "Failed to fetch user: " + err.Error(),
 			})
 		}
 		users = append(users, user)
@@ -54,4 +54,36 @@ func (userController *UserController) GetAllUsers(context *gin.Context) {
 		"users":   users,
 	})
 
+}
+
+func (userController *UserController) CreateUser(context *gin.Context) {
+
+	var user models.User
+	context.ShouldBindJSON(&user)
+
+	query := `
+	insert into users (fullName, age) values (?, ?)
+	`
+	stmt, err := userController.DB.Prepare(query)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failed to create user:" + err.Error(),
+		})
+		return
+	}
+
+	result, err := stmt.Exec(user.FullName, user.Age)
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{
+			"message": "failed to create user:" + err.Error(),
+		})
+		return
+	}
+	user.ID = id
+	context.JSON(http.StatusCreated, gin.H{
+		"message": "Create user successfull!",
+		"user":    user,
+	})
 }

@@ -1,1 +1,10 @@
-GET http://localhost:5001/users
+# GET http://localhost:5001/users
+
+
+POST http://localhost:5001/users
+Content-Type: application/json
+
+{
+    "full_name" : "Le Minh Quang",
+    "age": 23
+}

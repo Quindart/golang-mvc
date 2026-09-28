@@ -18,7 +18,6 @@ func (myDB *MyDB) InitDB() {
 		fmt.Println(err)
 		return
 	}
-	defer db.Close()
 
 	//
 	fmt.Println("Connected to the SQLite database successfully.")
