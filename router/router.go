@@ -28,6 +28,7 @@ func SetupRouter(db *sql.DB) *gin.Engine {
 	{
 		users.GET("", middlewares.Authenticate, userController.GetAllUsers)
 		users.GET("/token", userController.GetToken)
+		users.GET("/:id", userController.GetUserByID)
 		users.POST("", userController.CreateUser)
 	}
 

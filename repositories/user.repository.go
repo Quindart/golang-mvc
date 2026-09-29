@@ -20,7 +20,7 @@ func (r *UserRepository) GetAll() ([]models.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close() 
+	defer rows.Close()
 
 	var users []models.User
 	for rows.Next() {
@@ -35,8 +35,8 @@ func (r *UserRepository) GetAll() ([]models.User, error) {
 
 // Tạo user mới
 func (r *UserRepository) Create(user *models.User) error {
-	query := "insert into users (fullName, age) values (?, ?)"
-	result, err := r.DB.Exec(query, user.FullName, user.Age)
+	query := "insert into users (fullName, age, user_name, password) values (?, ?, ?, ?)"
+	result, err := r.DB.Exec(query, user.FullName, user.Age, user.UserName, user.Password)
 	if err != nil {
 		return err
 	}
@@ -47,4 +47,25 @@ func (r *UserRepository) Create(user *models.User) error {
 	}
 	user.ID = id
 	return nil
+}
+func (c *UserRepository) GetByID(id string) *models.User {
+	query := "SELECT id, fullName, age, user_name, password FROM users WHERE id = ?"
+
+	row := c.DB.QueryRow(query, id)
+
+	user := &models.User{}
+
+	err := row.Scan(
+		&user.ID,
+		&user.FullName,
+		&user.Age,
+		&user.UserName,
+		&user.Password,
+	)
+
+	if err != nil {
+		return nil
+	}
+
+	return user
 }

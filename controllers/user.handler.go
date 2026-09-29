@@ -13,7 +13,6 @@ type UserController struct {
 	Repo *repositories.UserRepository
 }
 
-// Tiêm (Inject) Repository vào Controller
 func NewUserController(repo *repositories.UserRepository) *UserController {
 	return &UserController{
 		Repo: repo,
@@ -53,6 +52,14 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"message": "Create user successfull!",
+		"user":    user,
+	})
+}
+func (c *UserController) GetUserByID(ctx *gin.Context) {
+	id := ctx.Param("id")
+	user := c.Repo.GetByID(id)
+ 	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Get user successfull!",
 		"user":    user,
 	})
 }
